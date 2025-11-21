@@ -78,7 +78,8 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
 
         Texture2D texture = emoteIsGrowing || emoteIsShrinking ? OpeningTexture : EmoteTexture;
         int sourceY = emoteIsGrowing || emoteIsShrinking ? 0 : EmotionData.SpriteIndex * EmotionData.FrameHeight;
-        // We still want it to appear as 64 pixels wide (16 * DRAW_SCALE) even if the emote is higher/lower resolution
+        
+        // We still want it to appear as 64 pixels wide (16 * DRAW_SCALE) even if the emote is higher/lower resolution.
         float scale = DRAW_SCALE / (EmotionData.FrameWidth / 16f);
         b.Draw(
             texture: texture,
