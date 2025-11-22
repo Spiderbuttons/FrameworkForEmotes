@@ -3,7 +3,7 @@
     "Author": "Spiderbuttons",
     "Version": "1.0.0",
     "Description": "A framework for mod authors to add custom emotes for characters to perform.",
-    "UniqueID": "Spiderbuttons.FrameworkedEmotionsMod",
+    "UniqueID": "Spiderbuttons.FEM",
     "EntryDll": "FrameworkedEmotionsMod.dll",
     "UpdateKeys": []
 }
