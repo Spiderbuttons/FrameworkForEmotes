@@ -1,11 +1,10 @@
-﻿using System;
-using HarmonyLib;
-using Microsoft.Xna.Framework;
+﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 using FrameworkedEmotionsMod.Helpers;
+using StardewValley.Delegates;
+using StardewValley.Triggers;
 
 namespace FrameworkedEmotionsMod
 {
@@ -15,7 +14,7 @@ namespace FrameworkedEmotionsMod
         internal static IMonitor ModMonitor { get; set; } = null!;
         internal static Harmony Harmony { get; set; } = null!;
         
-        internal static EmotionManager EmotionManager { get; set; } = null!;
+        private static EmotionManager EmotionManager { get; set; } = null!;
 
         public override void Entry(IModHelper helper)
         {
@@ -23,6 +22,12 @@ namespace FrameworkedEmotionsMod
             ModMonitor = Monitor;
             
             EmotionManager = new EmotionManager();
+            
+            TriggerActionManager.RegisterAction($"{ModManifest.UniqueID}_Emote", EmoteTraction);
+            GameLocation.RegisterTileAction($"{ModManifest.UniqueID}_Emote",
+                (_, args, _, _) => EmoteTraction(args, TriggerActionManager.EmptyManualContext, out _));
+            GameLocation.RegisterTouchAction($"{ModManifest.UniqueID}_Emote", 
+                (_, args, _, _) => EmoteTraction(args, TriggerActionManager.EmptyManualContext, out _));
 
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             Helper.Events.Input.ButtonPressed += OnButtonPressed;
@@ -60,10 +65,41 @@ namespace FrameworkedEmotionsMod
             
             // I don't want the game to register a warning when I overwrite the original, so...
             Event.SetupEventCommandsIfNeeded();
-            Event.Commands["Emote"] = CustomEmote;
+            Event.Commands["Emote"] = CustomEmoteEventCommand;
+        }
+
+        private static bool EmoteTraction(string[] args, TriggerActionContext context, out string error)
+        {
+            if (!ArgUtility.TryGet(args, 1, out string characterName, out error, allowBlank: false) || !ArgUtility.TryGet(args, 2, out string emoteId, out error, allowBlank: false))
+            {
+                Log.Error(error);
+                return false;
+            }
+
+            bool isFarmer = characterName.ToLower().Equals("farmer");
+            Character emoter = isFarmer ? Game1.player : Game1.getCharacterFromName(characterName);
+            if (emoter is null)
+            {
+                Log.Error($"No character found with name '{characterName}'");
+                return false;
+            }
+            
+            if (int.TryParse(emoteId, out int emoteInt))
+            {
+                emoter.doEmote(emoteInt);
+                return true;
+            }
+
+            if (!EmotionManager.TryGetEmotion(emoteId, out var emotion))
+            {
+                Log.Error($"The provided emote Id '${emoteId}' does not exist");
+                return false;
+            }
+            EmotionManager.PlayEmotion(emoter, emotion, isEventEmote: Game1.currentLocation.currentEvent is not null);
+            return true;
         }
         
-        private static void CustomEmote(Event @event, string[] args, EventContext context)
+        private static void CustomEmoteEventCommand(Event @event, string[] args, EventContext context)
         {
             if (ArgUtility.TryGetInt(args, 2, out _, out string error, "int emoteId"))
             {
@@ -86,7 +122,7 @@ namespace FrameworkedEmotionsMod
             if (@event.IsFarmerActorId(actorName, out var farmerNumber))
             {
                 var farmerActor = @event.GetFarmerActor(farmerNumber);
-                if (!EmotionManager.IsCharacterEmoting(farmerActor)) EmotionManager.PlayEmotion(farmerActor, emotion, isEventEmote: true, !nextCommandImmediate);
+                EmotionManager.PlayEmotion(farmerActor, emotion, isEventEmote: true, !nextCommandImmediate);
             }
             else
             {
@@ -96,7 +132,7 @@ namespace FrameworkedEmotionsMod
                     context.LogErrorAndSkip($"no NPC found with name '{actorName}'", isOptionalNpc);
                     return;
                 }
-                if (!EmotionManager.IsCharacterEmoting(npc)) EmotionManager.PlayEmotion(npc, emotion, isEventEmote: true, !nextCommandImmediate);
+                EmotionManager.PlayEmotion(npc, emotion, isEventEmote: true, !nextCommandImmediate);
             }
 
             if (nextCommandImmediate)
