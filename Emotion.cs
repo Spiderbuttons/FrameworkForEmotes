@@ -39,7 +39,7 @@ public class Emotion(Character emoter, EmotionData emotionData, bool isEventEmot
     {
         if (EmotionalBeing.IsEmoting) IsActive = false;
         if (isEventEmote && Game1.currentLocation.currentEvent is null) IsActive = false;
-        if (!IsActive) return;
+        if (!IsActive || EmotionalBeing.currentLocation.NameOrUniqueName != Game1.currentLocation.NameOrUniqueName) return;
         
         Vector2 emotePosition = EmotionalBeing.getLocalPosition(Game1.viewport);
         switch (EmotionalBeing)
