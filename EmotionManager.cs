@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using FrameworkedEmotionsMod.Helpers;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -12,10 +13,9 @@ public class EmotionManager
 {
     private static Dictionary<string, EmotionData>? _emotions;
 
-    private static Dictionary<string, EmotionData> Emotions { get; } = _emotions ??= Game1.content.Load<Dictionary<string, EmotionData>>(@"Spiderbuttons.FEM\Emotes");
-
-    private static Texture2D? vanillaEmotes;
-    public static Texture2D VanillaEmotes => vanillaEmotes ??= Game1.content.Load<Texture2D>(@"TileSheets\emotes");
+    private static Dictionary<string, EmotionData> Emotions => _emotions ??= Game1.content.Load<Dictionary<string, EmotionData>>(@"Spiderbuttons.FEM\Emotes");
+    
+    public static Texture2D VanillaEmotes => Game1.emoteSpriteSheet;
     
     private List<Emotion> ActiveEmotions { get; } = [];
 
@@ -32,15 +32,21 @@ public class EmotionManager
         return Emotions.TryGetValue(emoteId, out emotion);
     }
     
-    public void PlayEmotion(Character emoter, EmotionData emotionData, bool immediateEventCommand = false)
+    public void PlayEmotion(Character emoter, EmotionData emotionData, bool isEventEmote, bool immediateEventCommand = false)
     {
-        Emotion newEmotion = new(emoter, emotionData, immediateEventCommand);
+        Log.Trace($"{emoter.Name} is experiencing an{(isEventEmote ? " event" : "")} emotion: {emotionData.Id}");
+        Emotion newEmotion = new(emoter, emotionData, isEventEmote, immediateEventCommand);
         ActiveEmotions.Add(newEmotion);
     }
     
-    public void StopAllEmotions()
+    private void StopAllEmotions()
     {
         ActiveEmotions.ForEach(emote => emote.IsActive = false);
+    }
+    
+    public bool IsCharacterEmoting(Character character)
+    {
+        return ActiveEmotions.Any(emote => emote.EmotionalBeing == character && emote.IsActive);
     }
 
     private void OnRenderedWorld(object? sender, RenderedWorldEventArgs e)
@@ -62,6 +68,7 @@ public class EmotionManager
         }
     }
     
+    [EventPriority(EventPriority.High)]
     private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
     {
         if (e.Name.IsEquivalentTo(@"Spiderbuttons.FEM\Emotes"))
@@ -74,6 +81,8 @@ public class EmotionManager
     {
         if (e.NamesWithoutLocale.Any(ass => ass.IsEquivalentTo(@"Spiderbuttons.FEM\Emotes")))
         {
+            Log.Trace("Invalidating emotions...");
+            StopAllEmotions();
             _emotions = null;
         }
     }
