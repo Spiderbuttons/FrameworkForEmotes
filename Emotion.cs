@@ -30,15 +30,17 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
         Game1.content.Load<Texture2D>(EmotionData.OpeningTexture) :
         EmotionManager.VanillaEmotes;
     
-    private int FramesPerEmote => EmoteTexture.Width / EmotionData.FrameWidth;
+    private int FrameWidth => EmotionData.FrameWidth ?? 16;
+    private int FrameHeight => EmotionData.FrameHeight ?? FrameWidth;
+    private int FramesPerEmote => EmoteTexture.Width / FrameWidth;
     public bool IsActive { get; set; } = true;
 
     public void Draw(SpriteBatch b)
     {
+        if (EmotionalBeing.IsEmoting) IsActive = false;
         if (!IsActive) return;
         
         Vector2 emotePosition = EmotionalBeing.getLocalPosition(Game1.viewport);
-        emotePosition.Y -= (EmotionData.FrameHeight - 16) * DRAW_SCALE;
         switch (EmotionalBeing)
         {
             case Farmer:
@@ -75,20 +77,26 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
                 emotePosition.X += EmotionalBeing.Sprite.SourceRect.Width * DRAW_SCALE / 2f - 32f;
                 break;
         }
+        
+        // These formulas will compensate for emotes that are not square and taller than they are wide.
+        // Without this adjustment you get emotes starting like, inside the body, which is not desirable, as it turns out.
+        float scaleTo16 = 16f / FrameWidth;
+        float heightAdjustment = (FrameHeight * scaleTo16 - 16f) / 16;
+        emotePosition.Y -= 16f * heightAdjustment * DRAW_SCALE;
 
         Texture2D texture = emoteIsGrowing || emoteIsShrinking ? OpeningTexture : EmoteTexture;
-        int sourceY = emoteIsGrowing || emoteIsShrinking ? 0 : EmotionData.SpriteIndex * EmotionData.FrameHeight;
+        int sourceY = emoteIsGrowing || emoteIsShrinking ? 0 : EmotionData.SpriteIndex * FrameHeight;
         
         // We still want it to appear as 64 pixels wide (16 * DRAW_SCALE) even if the emote is higher/lower resolution.
-        float scale = DRAW_SCALE / (EmotionData.FrameWidth / 16f);
+        float scale = DRAW_SCALE / (FrameWidth / 16f);
         b.Draw(
             texture: texture,
             position: emotePosition,
             sourceRectangle: new Rectangle(
-                x: currentFrame * EmotionData.FrameWidth,
+                x: currentFrame * FrameWidth,
                 y: sourceY,
-                width: EmotionData.FrameWidth,
-                height: EmotionData.FrameHeight
+                width: FrameWidth,
+                height: FrameHeight
             ),
             color: Color.White,
             rotation: 0f,
@@ -101,6 +109,7 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
 
     public void Update(GameTime time)
     {
+        if (EmotionalBeing.IsEmoting) IsActive = false;
         if (!IsActive) return;
         
         if (emoteIsGrowing && !EmotionData.ShowOpeningAnimation) emoteIsGrowing = false;
