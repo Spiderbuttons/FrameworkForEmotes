@@ -7,20 +7,18 @@ using StardewValley.Characters;
 
 namespace FrameworkedEmotionsMod;
 
-public class Emotion(Character emoter, EmotionData emotionData, bool immediateEventCommand = false)
+public class Emotion(Character emoter, EmotionData emotionData, bool isEventEmote, bool immediateEventCommand = false)
 {
     private const float DRAW_SCALE = 4f;
 
-    private int currentFrame = 0;
-    private float emoteFrameTimer = 0f;
-    private bool emoteIsShrinking = false;
+    private int currentFrame;
+    private float emoteFrameTimer;
+    private bool emoteIsShrinking;
     private bool emoteIsGrowing = true;
     private int loopCount;
 
-    private float alpha = 1f;
-
-    private Character EmotionalBeing { get; set; } = emoter;
-    private EmotionData EmotionData { get; set; } = emotionData;
+    public Character EmotionalBeing { get; } = emoter;
+    private EmotionData EmotionData { get; } = emotionData;
 
     private Texture2D? _emoteTexture;
     private Texture2D EmoteTexture => _emoteTexture ??= Game1.content.Load<Texture2D>(EmotionData.Texture);
@@ -29,6 +27,8 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
     private Texture2D OpeningTexture => _openingTexture ??= EmotionData.OpeningTexture is not null ?
         Game1.content.Load<Texture2D>(EmotionData.OpeningTexture) :
         EmotionManager.VanillaEmotes;
+
+    private int OpeningFrames => OpeningTexture.Width / FrameWidth;
     
     private int FrameWidth => EmotionData.FrameWidth ?? 16;
     private int FrameHeight => EmotionData.FrameHeight ?? FrameWidth;
@@ -38,6 +38,7 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
     public void Draw(SpriteBatch b)
     {
         if (EmotionalBeing.IsEmoting) IsActive = false;
+        if (isEventEmote && Game1.currentLocation.currentEvent is null) IsActive = false;
         if (!IsActive) return;
         
         Vector2 emotePosition = EmotionalBeing.getLocalPosition(Game1.viewport);
@@ -80,6 +81,7 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
         
         // These formulas will compensate for emotes that are not square and taller than they are wide.
         // Without this adjustment you get emotes starting like, inside the body, which is not desirable, as it turns out.
+        // (We don't need to compensate for emotes that are wider than they are tall, that came for free with my Xbox.)
         float scaleTo16 = 16f / FrameWidth;
         float heightAdjustment = (FrameHeight * scaleTo16 - 16f) / 16;
         emotePosition.Y -= 16f * heightAdjustment * DRAW_SCALE;
@@ -110,6 +112,7 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
     public void Update(GameTime time)
     {
         if (EmotionalBeing.IsEmoting) IsActive = false;
+        if (isEventEmote && Game1.currentLocation.currentEvent is null) IsActive = false;
         if (!IsActive) return;
         
         if (emoteIsGrowing && !EmotionData.ShowOpeningAnimation) emoteIsGrowing = false;
@@ -125,8 +128,10 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
             }
             return;
         }
+        
         emoteFrameTimer += time.ElapsedGameTime.Milliseconds;
 
+        // This if-block handles reversing the opening animation to eventually end the emote.
         if (emoteIsShrinking && emoteFrameTimer > 20f)
         {
             emoteFrameTimer = 0f;
@@ -145,17 +150,20 @@ public class Emotion(Character emoter, EmotionData emotionData, bool immediateEv
             }
         }
 
-        else if (emoteIsGrowing && emoteFrameTimer > 20f && currentFrame <= 3)
+        // This if-block handles when the emote first starts and needs to play the opening animation.
+        else if (emoteIsGrowing && emoteFrameTimer > 20f && currentFrame <= OpeningFrames - 1)
         {
             emoteFrameTimer = 0f;
             currentFrame++;
-            if (currentFrame == 4)
+            if (currentFrame == OpeningFrames)
             {
                 currentFrame = 0;
                 emoteIsGrowing = false;
             }
         }
 
+        // Finally, this if-block handles the custom emote itself, advancing frame by frame every MillisecondsPerFrame ms until it reaches the last one.
+        // (And until it's done looping, if applicable.)
         else if (!emoteIsShrinking && !emoteIsGrowing && emoteFrameTimer > EmotionData.MillisecondsPerFrame)
         {
             emoteFrameTimer = 0f;
