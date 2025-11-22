@@ -34,6 +34,8 @@ public class EmotionManager
     
     public void PlayEmotion(Character emoter, EmotionData emotionData, bool isEventEmote, bool immediateEventCommand = false)
     {
+        if (IsCharacterEmoting(emoter)) return;
+        
         Log.Trace($"{emoter.Name} is experiencing an{(isEventEmote ? " event" : "")} emotion: {emotionData.Id}");
         Emotion newEmotion = new(emoter, emotionData, isEventEmote, immediateEventCommand);
         ActiveEmotions.Add(newEmotion);
@@ -44,7 +46,7 @@ public class EmotionManager
         ActiveEmotions.ForEach(emote => emote.IsActive = false);
     }
     
-    public bool IsCharacterEmoting(Character character)
+    private bool IsCharacterEmoting(Character character)
     {
         return ActiveEmotions.Any(emote => emote.EmotionalBeing == character && emote.IsActive);
     }
