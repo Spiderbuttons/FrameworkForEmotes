@@ -26,11 +26,39 @@ namespace FrameworkedEmotionsMod
 
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             Helper.Events.Input.ButtonPressed += OnButtonPressed;
+            
+            Helper.Events.Content.AssetRequested += OnAssetRequested;
         }
         
-        [EventPriority(EventPriority.High)]
+        private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
+        {
+            if (e.Name.IsEquivalentTo(@"Spiderbuttons.FEM\Emotes"))
+            {
+                e.Edit(ass =>
+                {
+                    var dict = ass.AsDictionary<string, EmotionData>().Data;
+                    dict["TestEmotion"] = new EmotionData
+                    {
+                        Id = "TestEmotion",
+                        Texture = Helper.ModContent.GetInternalAssetName("emotes.png").BaseName,
+                        SpriteIndex = 1,
+                        MillisecondsPerFrame = 100,
+                        Loops = 3,
+                        PositionOffset = 0,
+                        FrameWidth = 256,
+                        FrameHeight = 256,
+                        OpeningTexture = Helper.ModContent.GetInternalAssetName("emotes.png").BaseName,
+                    };
+                });
+            }
+        }
+        
+        [EventPriority(EventPriority.Low)]
         private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
         {
+            Log.Trace("*spider noises*");
+            
+            // I don't want the game to register a warning when I overwrite the original, so...
             Event.SetupEventCommandsIfNeeded();
             Event.Commands["Emote"] = CustomEmote;
         }
@@ -43,7 +71,7 @@ namespace FrameworkedEmotionsMod
                 return;
             }
         
-            if (!ArgUtility.TryGet(args, 1, out var actorName, out error, allowBlank: true, "string actorName") || !ArgUtility.TryGet(args, 2, out string emoteId, out error, allowBlank: false) || !ArgUtility.TryGetOptionalBool(args, 3, out var nextCommandImmediate, out error, defaultValue: false, "bool nextCommandImmediate"))
+            if (!ArgUtility.TryGet(args, 1, out var actorName, out error, allowBlank: true, "string actorName") || !ArgUtility.TryGet(args, 2, out string emoteId, out error, allowBlank: false) || !ArgUtility.TryGetOptionalBool(args, 3, out var nextCommandImmediate, out error, defaultValue: false, "bool continueImmediately"))
             {
                 context.LogErrorAndSkip(error);
                 return;
@@ -51,13 +79,14 @@ namespace FrameworkedEmotionsMod
 
             if (!EmotionManager.TryGetEmotion(emoteId, out var emotion))
             {
-                context.LogErrorAndSkip($"The provided emote Id '${emoteId}' does not exist.");
+                context.LogErrorAndSkip($"[Frameworked Emotions Mod] The provided emote Id '${emoteId}' does not exist");
                 return;
             }
 
             if (@event.IsFarmerActorId(actorName, out var farmerNumber))
             {
-                EmotionManager.PlayEmotion(@event.GetFarmerActor(farmerNumber), emotion, !nextCommandImmediate);
+                var farmerActor = @event.GetFarmerActor(farmerNumber);
+                if (!EmotionManager.IsCharacterEmoting(farmerActor)) EmotionManager.PlayEmotion(farmerActor, emotion, isEventEmote: true, !nextCommandImmediate);
             }
             else
             {
@@ -67,7 +96,7 @@ namespace FrameworkedEmotionsMod
                     context.LogErrorAndSkip($"no NPC found with name '{actorName}'", isOptionalNpc);
                     return;
                 }
-                EmotionManager.PlayEmotion(npc, emotion, !nextCommandImmediate);
+                if (!EmotionManager.IsCharacterEmoting(npc)) EmotionManager.PlayEmotion(npc, emotion, isEventEmote: true, !nextCommandImmediate);
             }
 
             if (nextCommandImmediate)
@@ -81,43 +110,6 @@ namespace FrameworkedEmotionsMod
         {
             if (!Context.IsWorldReady)
                 return;
-
-            if (e.Button == SButton.F5)
-            {
-                Helper.GameContent.InvalidateCache(Helper.ModContent.GetInternalAssetName("emotes.png").BaseName);
-                EmotionData testEmotion = new EmotionData
-                {
-                    Id = "TestEmotion",
-                    // Texture = @"TileSheets\emotes",
-                    Texture = Helper.ModContent.GetInternalAssetName("emotes.png").BaseName,
-                    SpriteIndex = 1,
-                    MillisecondsPerFrame = 250,
-                    PositionOffset = 0,
-                    FrameWidth = 256,
-                    FrameHeight = 256,
-                    OpeningTexture = Helper.ModContent.GetInternalAssetName("emotes.png").BaseName,
-                };
-                // EmotionManager.PlayEmotion(Game1.getCharacterFromName("Haley"), testEmotion);
-                EmotionManager.PlayEmotion(Game1.player, testEmotion);
-            }
-
-            if (e.Button == SButton.F6)
-            {
-                EmotionData testEmotion = new EmotionData
-                {
-                    Id = "TestEmotion",
-                    // Texture = @"TileSheets\emotes",
-                    Texture = Helper.ModContent.GetInternalAssetName("emotes.png").BaseName,
-                    SpriteIndex = 1,
-                    MillisecondsPerFrame = 250,
-                    PositionOffset = 0,
-                    Loops = 4,
-                    FrameHeight = 32,
-                    OpeningTexture = Helper.ModContent.GetInternalAssetName("emotes.png").BaseName,
-                };
-                EmotionManager.PlayEmotion(Game1.getCharacterFromName("Haley"), testEmotion);
-                // EmotionManager.PlayEmotion(Game1.player, testEmotion);
-            }
         }
     }
 }
