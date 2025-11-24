@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrameworkedEmotionsMod", "FrameworkedEmotionsMod.csproj", "{7423B187-9FD1-4379-8A01-C8BC0F0714FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrameworkForEmotes", "FrameworkForEmotes.csproj", "{7423B187-9FD1-4379-8A01-C8BC0F0714FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
