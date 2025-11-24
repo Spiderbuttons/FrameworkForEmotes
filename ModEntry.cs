@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using StardewModdingAPI;
+﻿using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using FrameworkForEmotes.Helpers;
@@ -12,7 +11,6 @@ namespace FrameworkForEmotes
     {
         internal static IModHelper ModHelper { get; set; } = null!;
         internal static IMonitor ModMonitor { get; set; } = null!;
-        internal static Harmony Harmony { get; set; } = null!;
         
         private static EmotionManager EmotionManager { get; set; } = null!;
 
