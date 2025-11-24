@@ -113,7 +113,7 @@ namespace FrameworkForEmotes
 
             if (!EmotionManager.TryGetEmotion(emoteId, out var emotion))
             {
-                context.LogErrorAndSkip($"[Frameworked Emotions Mod] The provided emote Id '${emoteId}' does not exist");
+                context.LogErrorAndSkip($"[Framework for Emote Mods] The provided emote Id '${emoteId}' does not exist");
                 return;
             }
 
