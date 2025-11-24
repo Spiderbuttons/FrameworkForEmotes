@@ -9,7 +9,7 @@ using HarmonyLib;
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable once RedundantArgumentDefaultValue
 
-namespace FrameworkedEmotionsMod.Helpers;
+namespace FrameworkForEmotes.Helpers;
 
 public static class Log
 {

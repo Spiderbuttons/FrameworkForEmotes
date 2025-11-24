@@ -1,11 +1,11 @@
 ﻿using System;
-using FrameworkedEmotionsMod.Helpers;
+using FrameworkForEmotes.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Characters;
 
-namespace FrameworkedEmotionsMod;
+namespace FrameworkForEmotes;
 
 public class Emotion(Character emoter, EmotionData emotionData, bool isEventEmote, bool immediateEventCommand = false)
 {

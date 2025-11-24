@@ -1,4 +1,4 @@
-﻿namespace FrameworkedEmotionsMod;
+﻿namespace FrameworkForEmotes;
 
 public class EmotionData
 {

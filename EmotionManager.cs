@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using FrameworkedEmotionsMod.Helpers;
+using FrameworkForEmotes.Helpers;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
 using StardewValley;
 
-namespace FrameworkedEmotionsMod;
+namespace FrameworkForEmotes;
 
 public class EmotionManager
 {

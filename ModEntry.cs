@@ -2,11 +2,11 @@
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using FrameworkedEmotionsMod.Helpers;
+using FrameworkForEmotes.Helpers;
 using StardewValley.Delegates;
 using StardewValley.Triggers;
 
-namespace FrameworkedEmotionsMod
+namespace FrameworkForEmotes
 {
     internal sealed class ModEntry : Mod
     {
