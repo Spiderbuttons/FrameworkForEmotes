@@ -12,7 +12,7 @@ public class EmotionManager
 {
     private static Dictionary<string, EmotionData>? _emotions;
 
-    private static Dictionary<string, EmotionData> Emotions => _emotions ??= Game1.content.Load<Dictionary<string, EmotionData>>(@"Spiderbuttons.FEM\Emotes");
+    private static Dictionary<string, EmotionData> Emotions => _emotions ??= Game1.content.Load<Dictionary<string, EmotionData>>(ModEntry.ASSET_NAME);
     
     public static Texture2D VanillaEmotes => Game1.emoteSpriteSheet;
     
@@ -31,7 +31,7 @@ public class EmotionManager
         return Emotions.TryGetValue(emoteId, out emotion);
     }
     
-    public void PlayEmotion(Character emoter, EmotionData emotionData, bool isEventEmote, bool immediateEventCommand = false)
+    public void PlayEmotion(Character emoter, EmotionData emotionData, bool isEventEmote = false, bool immediateEventCommand = false)
     {
         if (IsCharacterEmoting(emoter)) return;
         
@@ -84,7 +84,7 @@ public class EmotionManager
     [EventPriority(EventPriority.High)]
     private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
     {
-        if (e.Name.IsEquivalentTo(@"Spiderbuttons.FEM\Emotes"))
+        if (e.Name.IsEquivalentTo(ModEntry.ASSET_NAME))
         {
             e.LoadFrom(() => new Dictionary<string, EmotionData>(), AssetLoadPriority.Exclusive);
         }
@@ -92,7 +92,7 @@ public class EmotionManager
 
     private void OnAssetsInvalidated(object? sender, AssetsInvalidatedEventArgs e)
     {
-        if (e.NamesWithoutLocale.Any(ass => ass.IsEquivalentTo(@"Spiderbuttons.FEM\Emotes")))
+        if (e.NamesWithoutLocale.Any(ass => ass.IsEquivalentTo(ModEntry.ASSET_NAME)))
         {
             Log.Trace("Invalidating emotions...");
             StopAllEmotions();
