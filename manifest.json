@@ -5,5 +5,5 @@
     "Description": "A framework for mod authors to add custom emotes for characters to perform.",
     "UniqueID": "Spiderbuttons.FEM",
     "EntryDll": "FrameworkForEmotes.dll",
-    "UpdateKeys": []
+    "UpdateKeys": [ "Nexus:39656" ]
 }
