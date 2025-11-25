@@ -1,4 +1,6 @@
-﻿namespace FrameworkForEmotes;
+﻿using Microsoft.Xna.Framework;
+
+namespace FrameworkForEmotes;
 
 public class EmotionData
 {
@@ -9,7 +11,7 @@ public class EmotionData
     public int? FrameHeight { get; set; }
     public int MillisecondsPerFrame { get; set; }
     public int Loops { get; set; } = 1;
-    public int PositionOffset { get; set; }
+    public Vector2 PositionOffset { get; set; }
     public string? OpeningTexture { get; set; }
     public bool ShowOpeningAnimation { get; set; } = true;
     public bool ShowClosingAnimation { get; set; } = true;
