@@ -9,6 +9,8 @@ namespace FrameworkForEmotes
 {
     internal sealed class ModEntry : Mod
     {
+        public const string ASSET_NAME = "Spiderbuttons.FEM/Emotes";
+        
         internal static IModHelper ModHelper { get; set; } = null!;
         internal static IMonitor ModMonitor { get; set; } = null!;
         
