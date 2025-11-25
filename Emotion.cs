@@ -85,6 +85,8 @@ public class Emotion(Character emoter, EmotionData emotionData, bool isEventEmot
         float scaleTo16 = 16f / FrameWidth;
         float heightAdjustment = (FrameHeight * scaleTo16 - 16f) / 16;
         emotePosition.Y -= 16f * heightAdjustment * DRAW_SCALE;
+        
+        emotePosition += EmotionData.PositionOffset;
 
         Texture2D texture = emoteIsGrowing || emoteIsShrinking ? OpeningTexture : EmoteTexture;
         int sourceY = emoteIsGrowing || emoteIsShrinking ? 0 : EmotionData.SpriteIndex * FrameHeight;
