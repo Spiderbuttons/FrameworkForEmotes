@@ -39,6 +39,18 @@ public class EmotionManager
         Emotion newEmotion = new(emoter, emotionData, isEventEmote, immediateEventCommand);
         ActiveEmotions.Add(newEmotion);
     }
+
+    public void PlayEmotionFromId(Character emoter, string emoteId, bool isEventEmote = false,
+        bool immediateEventCommand = false)
+    {
+        if (!TryGetEmotion(emoteId, out EmotionData? emotionData))
+        {
+            Log.Warn($"Emotion ID '{emoteId}' not found. Cannot play emotion for {emoter.Name}.");
+            return;
+        }
+
+        PlayEmotion(emoter, emotionData, isEventEmote, immediateEventCommand);
+    }
     
     private void StopAllEmotions()
     {
