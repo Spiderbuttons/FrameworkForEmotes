@@ -31,31 +31,6 @@ namespace FrameworkForEmotes
 
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             Helper.Events.Input.ButtonPressed += OnButtonPressed;
-            
-            Helper.Events.Content.AssetRequested += OnAssetRequested;
-        }
-        
-        private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
-        {
-            if (e.Name.IsEquivalentTo(@"Spiderbuttons.FEM\Emotes"))
-            {
-                e.Edit(ass =>
-                {
-                    var dict = ass.AsDictionary<string, EmotionData>().Data;
-                    dict["TestEmotion"] = new EmotionData
-                    {
-                        Id = "TestEmotion",
-                        Texture = Helper.ModContent.GetInternalAssetName("emotes.png").BaseName,
-                        SpriteIndex = 1,
-                        MillisecondsPerFrame = 100,
-                        Loops = 3,
-                        PositionOffset = 0,
-                        FrameWidth = 256,
-                        FrameHeight = 256,
-                        OpeningTexture = Helper.ModContent.GetInternalAssetName("emotes.png").BaseName,
-                    };
-                });
-            }
         }
         
         [EventPriority(EventPriority.Low)]
