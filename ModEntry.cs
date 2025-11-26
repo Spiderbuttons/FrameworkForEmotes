@@ -67,7 +67,7 @@ namespace FrameworkForEmotes
 
             if (!EmotionManager.TryGetEmotion(emoteId, out var emotion))
             {
-                Log.Error($"The provided emote Id '${emoteId}' does not exist");
+                Log.Error($"The provided emote Id '{emoteId}' does not exist");
                 return false;
             }
             EmotionManager.PlayEmotion(emoter, emotion, isEventEmote: Game1.currentLocation.currentEvent is not null);
@@ -90,7 +90,7 @@ namespace FrameworkForEmotes
 
             if (!EmotionManager.TryGetEmotion(emoteId, out var emotion))
             {
-                context.LogErrorAndSkip($"[Framework for Emote Mods] The provided emote Id '${emoteId}' does not exist");
+                context.LogErrorAndSkip($"[Framework for Emote Mods] The provided emote Id '{emoteId}' does not exist");
                 return;
             }
 
