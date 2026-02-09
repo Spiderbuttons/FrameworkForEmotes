@@ -130,7 +130,6 @@ public class Emotion(Character emoter, EmotionData emotionData, bool isEventEmot
         if (emoteIsGrowing && !EmotionData.ShowOpeningAnimation) emoteIsGrowing = false;
         if (emoteIsShrinking && !EmotionData.ShowClosingAnimation)
         {
-            Log.Warn("test");
             IsActive = false;
             if (immediateEventCommand && Game1.currentLocation.currentEvent is { } @event &&
                 (@event.actors.Contains(EmotionalBeing as NPC) ||
