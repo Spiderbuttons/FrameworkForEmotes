@@ -41,6 +41,16 @@ public class Emotion(Character emoter, EmotionData emotionData, bool isEventEmot
         if (isEventEmote && Game1.currentLocation.currentEvent is null) IsActive = false;
         if (!IsActive || EmotionalBeing.currentLocation.NameOrUniqueName != Game1.currentLocation.NameOrUniqueName) return;
         
+        if (emoteIsGrowing && !EmotionData.ShowOpeningAnimation)
+        {
+            return;
+        }
+        
+        if (emoteIsShrinking && !EmotionData.ShowClosingAnimation)
+        {
+            return;
+        }
+        
         Vector2 emotePosition = EmotionalBeing.getLocalPosition(Game1.viewport);
         switch (EmotionalBeing)
         {
@@ -120,6 +130,7 @@ public class Emotion(Character emoter, EmotionData emotionData, bool isEventEmot
         if (emoteIsGrowing && !EmotionData.ShowOpeningAnimation) emoteIsGrowing = false;
         if (emoteIsShrinking && !EmotionData.ShowClosingAnimation)
         {
+            Log.Warn("test");
             IsActive = false;
             if (immediateEventCommand && Game1.currentLocation.currentEvent is { } @event &&
                 (@event.actors.Contains(EmotionalBeing as NPC) ||
